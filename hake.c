@@ -45,7 +45,7 @@ static int read_file(char *filename, int quiet);
 static void read_lines(char *filename, FILE *fp);
 // fp comes from the file (named filename) opened by read_file() using fopen()
 
-int pr8_work(char *goal);	// recursive
+int pr8_work(char *goal);	// recursively processes target
 
 // last-modification time of a file
 
