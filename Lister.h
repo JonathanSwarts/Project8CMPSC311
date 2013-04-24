@@ -48,7 +48,7 @@ struct pr8_target_list{
 //Prototype functions here
 void pr8_list_init(struct pr8_target_list *list);
 //Add target
-struct pr8_target *list_add(struct pr8_target_list * const list,const char *name, const char *line, int *lnumber);
+struct pr8_target *list_add(struct pr8_target_list * const list,const char *name, const char *line, int lnumber);
 //Add recipe to target
 struct pr8_source *list_add_source(struct pr8_target *node, char *name);
 //Add recipe to target
