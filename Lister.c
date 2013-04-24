@@ -111,5 +111,15 @@ int list_remove(struct pr8_target_list *list, struct pr8_target *name){
   return list->length;
 }
 
+struct pr8_target *list_search(struct pr8_target_list *list, char *name){
+	if(list == NULL) return NULL;
+	if(list->head == NULL) return NULL;
+	
+	struct pr8_target *t = list->head;
+	while((p!= NULL) && !(strcmp(p->name, name)){
+		p = p->next;
+	}
+	return p;
+}
 
 

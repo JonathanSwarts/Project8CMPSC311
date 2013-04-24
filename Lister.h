@@ -54,9 +54,11 @@ struct pr8_source *list_add_source(struct pr8_target *node, char *name);
 struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name);
 //removes node, specified by name
 int list_remove(struct pr8_target_list *list, struct pr8_target *name);
+//Searchs list, specified by name
+struct pr8_target_list *list_search(struct pr8_target_list *list, char *name);
+
 
 /*
-struct target_list *list_search(struct target *list, char *name);
 struct target_list *list_add_once(struct target *list, char *name);
 struct target_list *list_update_entry(struct target *list, char *name);
 int list_remove_entry(struct target *list, char *name);
