@@ -12,19 +12,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "lister.h"
 
 extern int verbose;
 
 void pr8_list_init(struct pr8_target_list * const list){
-  list->count = 0;
+  // list->count = 0;
   list->head = NULL;
   list->tail = NULL;
   list->name = NULL;
 }
 
-struct pr8_target *list_add(struct pr8_target_list * const list,const char *name,const char *line, int lnumber){
-  struct pr8_target* target= malloc(sizeof(struct target));
+struct pr8_target *list_add(struct pr8_target_list * const list,char * const name,char * const line, int lnumber){
+  struct pr8_target* target= malloc(sizeof(struct pr8_target));
   if (target == NULL)
   {
     fprintf(stderr, "malloc() failed: %s: %d\n", __FILE__, __LINE__);
@@ -42,7 +44,7 @@ struct pr8_target *list_add(struct pr8_target_list * const list,const char *name
   list->head = target;
   target->prev = NULL;
   if (target->next != NULL) target->next->prev = target;
-  if(list->tail = NULL)
+  if(list->tail == NULL)
 	list->tail = target;
 	
 	list->length++;
@@ -50,7 +52,7 @@ struct pr8_target *list_add(struct pr8_target_list * const list,const char *name
 }
 
 struct pr8_source *list_add_source(struct pr8_target *node, char *name){
-  struct pr8_source* source= malloc(sizeof(struct source));
+  struct pr8_source* source= malloc(sizeof(struct pr8_source));
   if (source== NULL)
   {
     fprintf(stderr, "malloc() failed: %s: %d\n", __FILE__, __LINE__);
@@ -61,7 +63,7 @@ struct pr8_source *list_add_source(struct pr8_target *node, char *name){
   source->string = name;
   source->father = node;
   //put it to the top of the source list of target
-  source->next = target->s_head;
+  source->next = node->s_head;
   node->s_head = source;
   source->prev = NULL;
   if (source->next != NULL) source->next->prev = source;
@@ -69,7 +71,7 @@ struct pr8_source *list_add_source(struct pr8_target *node, char *name){
 }
 
 struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
-  struct pr8_recipe* recipe= malloc(sizeof(struct recipe));
+  struct pr8_recipe* recipe= malloc(sizeof(struct pr8_recipe));
   if (recipe== NULL)
   {
     fprintf(stderr, "malloc() failed: %s: %d\n", __FILE__, __LINE__);
@@ -80,7 +82,7 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
   recipe->string = name;
   recipe->father = node;
   //put it to the top of the recipe list of target
-  recipe->next = target->r_head;
+  recipe->next = node->r_head;
   node->r_head = recipe;
   recipe->prev = NULL;
   if (recipe->next != NULL) recipe->next->prev = recipe;	
@@ -88,18 +90,18 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
 }
 
 int pr8_list_remove(struct pr8_target_list *list, struct pr8_target *name){
-  struct pr8_target *temp = name;
+  // struct pr8_target *temp = name;
   struct pr8_source *s_temp;
   struct pr8_recipe *r_temp;
   //go through the sources and recipes and free() them!
   while(name->s_head != NULL){
 	s_temp = name->s_head;
-	s_head = s_head->next;
+	name->s_head = name->s_head->next;
 	free(s_temp);
   }
   while(name->r_head != NULL){
 	r_temp = name->r_head;
-	r_head = r_head->next;
+	name->r_head = name->r_head->next;
 	free(r_temp);
   }
   //Go around this node in the list.
@@ -118,10 +120,10 @@ struct pr8_target *list_search(struct pr8_target_list *list, char *name){
 	if(list->head == NULL) return NULL;
 	
 	struct pr8_target *t = list->head;
-	while((p!= NULL) && !(strcmp(p->name, name)){
-		p = p->next;
+	while((t!= NULL) && !(strcmp(t->name, name))){
+		t = t->next;
 	}
-	return p;
+	return t;
 }
 
 void pr8_list_print(struct pr8_target_list *list){

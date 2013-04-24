@@ -25,6 +25,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #include "cmpsc311.h"
 #include "names.h"
@@ -44,6 +46,31 @@ static void read_lines(char *filename, FILE *fp);
 // fp comes from the file (named filename) opened by read_file() using fopen()
 
 int pr8_work(char *goal);	// recursive
+
+// last-modification time of a file
+
+// The appropriate field of struct stat varies according to the OS.
+//   Posix, 2001        time_t st_mtime
+//   Posix, 2004        time_t st_mtime
+//   Posix, 2008        struct timespec st_mtim
+//                      macro st_mtime is st_mtim.tv_sec
+//   Solaris            time_t st_mtime
+//   Linux              time_t st_mtime
+//   Mac OS X           struct timespec st_mtimespec
+//                      or, st_mtime
+
+// The struct timespec fields are defined in <time.h>.
+//   time_t tv_sec;     // seconds
+//   long   tv_nsec;    // nanoseconds
+
+// The type time_t (time in seconds) is defined in <time.h> and <sys/types.h>.
+// The Posix Standard allows time_t to be an integer, or a real-floating type.
+// If time_t isn't an integer, we would be surprised, but the code should
+//   still work properly.
+
+// A nonexistent file is treated as extremely old.
+
+static struct timespec mtime(const char *file);
 
 // global data, accumulated from reading the file
 char *default_goal = NULL;	  // first-mentioned target
@@ -298,7 +325,7 @@ static void read_lines(char *filename, FILE *fp)
       
       cur_target = list_add(&target_list, strtok(tar_prereq, " \t\n\v\f\r:"), \
                             filename, line_number);
-      if (default_goal == NULL) default_goal = cur_target;
+      if (default_goal == NULL) default_goal = cur_target->name;
       while ((tar_prereq = strtok(NULL, " \t\n\v\f\r:")) != NULL) {
         list_add_source(cur_target, tar_prereq);
       }
@@ -392,10 +419,12 @@ int pr8_work(char *goal)
   struct pr8_target *target = list_search(&target_list, goal);
   if (target == NULL) return 1;
   
+  printf("goal: %s\n", goal);
+  
   struct pr8_source *source = target->s_head;
   while (source != NULL)
   {
-    if (pr8_work(source) == 0) return 0;
+    if (pr8_work(source->string) == 0) return 0;
     source = source->next;
   }
   
@@ -416,17 +445,37 @@ int pr8_work(char *goal)
         || t1.tv_sec < t2.tv_sec          // target is older than source
         || ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec < t2.tv_nsec)))
     { update = true; break; }
-    source = source->string;
+    source = source->next;
   }
   
   if (update)
   {
-    FILE *f = fopen(goal, O_CREAT);
+    FILE *f = fopen(goal, "a+");
     if (no_op) pr8_list_print_recipe(target);
     fclose(f);
   }
 
   return 1;
+}
+
+// last-modification time of a file
+static struct timespec mtime(const char *file)
+{
+  struct stat s;
+  struct timespec t = { 0, 0 };
+  
+  if (stat(file, &s) == 0)
+#if   defined(MTIME) && MTIME == 1      // Linux
+  { t = s.st_mtim; }
+#elif defined(MTIME) && MTIME == 2      // Mac OS X
+  { t = s.st_mtimespec; }
+#elif defined(MTIME) && MTIME == 3      // Mac OS X, with some additional settings
+  { t.tv_sec = s.st_mtime; t.tv_nsec = s.st_mtimensec; }
+#else                                   // Solaris
+  { t.tv_sec = s.st_mtime; }
+#endif
+  
+  return t;
 }
 
 
