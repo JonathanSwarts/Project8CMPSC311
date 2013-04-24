@@ -43,7 +43,7 @@ static int read_file(char *filename, int quiet);
 static void read_lines(char *filename, FILE *fp);
 // fp comes from the file (named filename) opened by read_file() using fopen()
 
-void pr8_work(char *goal);	// recursive
+int pr8_work(char *goal);	// recursive
 
 // global data, accumulated from reading the file
 char *default_goal = NULL;	  // first-mentioned target
@@ -150,8 +150,7 @@ int main(int argc, char *argv[])
   }
   
   // evaluate the goals
-  if (optind == argc)
-  { pr8_work(default_goal); }
+  if (optind == argc) pr8_work(default_goal);
   else
   {
     for (int i = optind; i < argc; i++)
@@ -299,6 +298,7 @@ static void read_lines(char *filename, FILE *fp)
       
       cur_target = list_add(&target_list, strtok(tar_prereq, " \t\n\v\f\r:"), \
                             filename, line_number);
+      if (default_goal == NULL) default_goal = cur_target;
       while ((tar_prereq = strtok(NULL, " \t\n\v\f\r:")) != NULL) {
         list_add_source(cur_target, tar_prereq);
       }
@@ -377,11 +377,10 @@ static void read_lines(char *filename, FILE *fp)
   return;
 }
 
-void pr8_work(char *goal)
+int pr8_work(char *goal)
 {
-  if (goal == NULL) return;
-  
-  printf("goal: %s\n", goal);
+  if (goal == NULL)
+  { fprintf(stderr, "%s: no goal specified\n", prog); return 0; }
   
   // if goal is a known target,
   //   iterate through goal's list of sources,
@@ -390,13 +389,44 @@ void pr8_work(char *goal)
   //     compare times of goal and its sources
   //   if necessary, iterate through goal's list of recipes,
   //     print the recipe
+  struct pr8_target *target = list_search(&target_list, goal);
+  if (target == NULL) return 1;
   
+  struct pr8_source *source = target->s_head;
+  while (source != NULL)
+  {
+    if (pr8_work(source) == 0) return 0;
+    source = source->next;
+  }
   
+  bool update = false;
+  struct timespec t1 = mtime(goal);   // target
+  struct timespec t2;                 // source
   
+  source = target->s_head;
+  while (source != NULL) {
+    t2 = mtime(source->string);
+    if (t2.tv_sec == 0)
+    {
+      fprintf(stderr, "%s: no rule to make target '%s', needed by '%s'\n", \
+              prog, source->string, goal);
+      return 0;
+    }
+    if (t1.tv_sec == 0                    // target does not exist
+        || t1.tv_sec < t2.tv_sec          // target is older than source
+        || ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec < t2.tv_nsec)))
+    { update = true; break; }
+    source = source->string;
+  }
   
-  // ... more later
-  
-  return;
+  if (update)
+  {
+    FILE *f = fopen(goal, O_CREAT);
+    if (no_op) pr8_list_print_recipe(target);
+    fclose(f);
+  }
+
+  return 1;
 }
 
 
