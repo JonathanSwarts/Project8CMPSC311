@@ -85,7 +85,7 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
 	return recipe; //returns the target node so you can add recipes and recipes
 }
 
-int list_remove(struct pr8_target_list *list, struct pr8_target *name){
+int pr8_list_remove(struct pr8_target_list *list, struct pr8_target *name){
   struct pr8_target *temp = name;
   struct pr8_source *s_temp;
   struct pr8_recipe *r_temp;
@@ -122,4 +122,26 @@ struct pr8_target *list_search(struct pr8_target_list *list, char *name){
 	return p;
 }
 
-
+void pr8_list_print(struct pr8_target_list *list){
+	//Used for debugging.
+	printf("%s: %d targets\n", list->name, list->length);
+	struct pr8_target *temp = list->head;
+	struct pr8_source *s_temp;
+	struct pr8_recipe *r_temp;
+	while(temp != NULL){
+		printf("%s: \n", temp->name);
+		s_temp = temp->s_head;
+		r_temp = temp->r_head;
+		printf("\tSources: \n");
+		while(s_temp != NULL){
+			printf("%s\n", s_temp->string);
+			s_temp = s_temp->next;
+		}
+		printf("\tRecipes: \n");
+		while(r_temp != NULL){
+			printf("%s\n", r_temp->string);
+			r_temp = r_temp->next;
+		}
+		temp = temp->next;
+	}
+}
