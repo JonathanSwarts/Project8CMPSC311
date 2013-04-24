@@ -1,7 +1,7 @@
 /* CMPSC 311, Spring 2013, Project 5 solution
  *
- * Author:   Don Heller
- * Email:    dheller@cse.psu.edu
+ * Author:   Nick Dyszel, Jon Swarts, Don Heller
+ * Email:    nwd5069@psu.edu jbs5144@psu.edu dheller@cse.psu.edu
  *
  * Hake -- a fishy version of Make
  *
@@ -15,7 +15,7 @@
  *    -h           print help
  *    -v           verbose mode; enable extra printing; can be repeated
  *    -f file      input filename; default is hakefile or Hakefile
- *
+ *    -n           no-op mode; don't actually run any commands; just print them
  */
 
 //------------------------------------------------------------------------------
@@ -42,19 +42,28 @@ static int read_file(char *filename, int quiet);
 static void read_lines(char *filename, FILE *fp);
   // fp comes from the file (named filename) opened by read_file() using fopen()
 
+void pr8_work(char *goal);	// recursive
+
+// global data, accumulated from reading the file
+char *default_goal = NULL;	  // first-mentioned target
+struct node_holder *targets;  // list of all targets
+
 // maximum line length in an input file (buffer size in read_lines)
 #define MAXLINE 4096
 
 //------------------------------------------------------------------------------
 
+int noop = 0;  // for -n option
+
 static void usage(int status)
 {
   if (status == EXIT_SUCCESS)
     {
-      printf("usage: %s [-h] [-v] [-f file]\n", prog);
+      printf("usage: %s [-h] [-v] [-f file] [-n]\n", prog);
       printf("  -h           print help\n");
       printf("  -v           verbose mode; enable extra printing; can be repeated\n");
       printf("  -f file      input filename; default is hakefile or Hakefile\n");
+      printf("  -n           no-op mode; don't actually run any commands; just print them\n");
     }
   else
     {
@@ -88,7 +97,7 @@ int main(int argc, char *argv[])
   int f_flag = 0;	// number of -f options supplied
 
   // first pass, everything except -f options (let the -v options accumulate)
-  while ((ch = getopt(argc, argv, ":hvf:")) != -1)
+  while ((ch = getopt(argc, argv, ":hvf:n")) != -1)
     {
       switch (ch) {
         case 'h':
@@ -97,9 +106,12 @@ int main(int argc, char *argv[])
         case 'v':
           verbose++;
           break;
-	case 'f':
-	  // later
-	  break;
+        case 'f':
+          // later
+          break;
+        case 'n':
+          noop = 1;
+          break;
         case '?':
           fprintf(stderr, "%s: invalid option '%c'\n", prog, optopt);
           usage(EXIT_FAILURE);
@@ -119,10 +131,10 @@ int main(int argc, char *argv[])
   while ((ch = getopt(argc, argv, ":hvf:")) != -1)
     {
       switch (ch) {
-	case 'f':
-	  f_flag++;		// number of -f options supplied
-	  (void) read_file(optarg, 0);
-	  break;
+        case 'f':
+          f_flag++;		// number of -f options supplied
+          (void) read_file(optarg, 0);
+          break;
         default:
           break;
       }
@@ -134,12 +146,14 @@ int main(int argc, char *argv[])
       usage(EXIT_FAILURE);
     }
 
-  // OK, we got all this data, now what?  That's a later project.
-
-  for (int i = optind; i < argc; i++)
-    {
-      printf("  target selected: %s\n", argv[i]);
-    }
+  // evaluate the goals
+  if (optind == argc)
+  { pr8_work(default_goal); }
+  else
+  {
+    for (int i = optind; i < argc; i++)
+    { pr8_work(argv[i]); }
+  }
 
   return status;
 }
@@ -258,8 +272,9 @@ static void read_lines(char *filename, FILE *fp)
 
     if (buffer[0] == '\t')
       {
-	recipe_line_number++;
+        recipe_line_number++;
         if (verbose > 0) printf("  diagnosis: recipe line %d\n", recipe_line_number);
+        if (noop > 0) printf("%s\n", buffer+1);  // print recipe without /t
 	if (have_target == false)
 	  {
 	    fprintf(stderr, "%s: %s: line %d: recipe but no target\n", prog, filename, line_number);
@@ -269,15 +284,15 @@ static void read_lines(char *filename, FILE *fp)
       }
     else if (p_colon != NULL)
       {
-	recipe_line_number = 0;
+        recipe_line_number = 0;
         if (verbose > 0) printf("  diagnosis: target-prerequisite\n");
-	have_target = true;
-	// (save this for a later project)
+        have_target = true;
+        // (save this for a later project)
       }
     else if (p_equal != NULL)
       {
         if (verbose > 0) printf("  diagnosis: macro definition\n");
-	have_target = false;
+        have_target = false;
         // name = body
         // *p_equal is '='
         char *name_start = buf;
@@ -343,6 +358,26 @@ static void read_lines(char *filename, FILE *fp)
 
   return;
 }
+
+void pr8_work(char *goal)
+{
+  if (goal == NULL) return;
+  
+  printf("goal: %s\n", goal);
+  
+  // if goal is a known target,
+  //   iterate through goal's list of sources,
+  //     call pr8_work() on each source
+  //   iterate through goal's list of sources,
+  //     compare times of goal and its sources
+  //   if necessary, iterate through goal's list of recipes,
+  //     print the recipe
+  
+  // ... more later
+  
+  return;
+}
+
 
 //------------------------------------------------------------------------------
 
