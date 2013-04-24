@@ -1,12 +1,13 @@
-/*
- *	Lister.h
- *		- A linked-list general use program.
+/*	CMPSC 311 Project 8 Linked List Toolkit
+ *	lister.c
+ *		- A linked-list kit for targets, sources, and recipes.
  *	
- *	Creator:
- *		- Jonathan Swarts
- *	
- *	Version 1:
- *		- Added Lists
+ *	Author: Jonathan Swarts
+ *	Email:	jbs5144@psu.edu
+ *
+ *	Version 1.0, 23 Apr 2013
+ *		created list, sublists and funtionality.
+ *		   
 */
 #ifndef LISTER_H
 #define LISTER_H
@@ -59,7 +60,7 @@ struct pr8_target_list *list_search(struct pr8_target_list *list, char *name);
 //Prints list -- debug
 void pr8_list_print(struct pr8_target_list *list);
 //Prints Source List
-void pr8_list_print(struct pr8_target *node);
+void pr8_list_print_source(struct pr8_target *node);
 //Prints recipe List
-void pr8_list_print(struct pr8_target *node);
+void pr8_list_print_recipe(struct pr8_target *node);
 #endif

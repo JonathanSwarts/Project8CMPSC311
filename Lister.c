@@ -1,12 +1,12 @@
-/*
- *	Lister.c
- *		- A linked-list general use program.
+/*	CMPSC 311 Project 8 Linked List Toolkit
+ *	lister.c
+ *		- A linked-list kit for targets, sources, and recipes.
  *	
- *	Creator:
- *		- Jonathan Swarts
- *	
- *	Version 1:
- *		- (4/22/2013)
+ *	Author: Jonathan Swarts
+ *	Email:	jbs5144@psu.edu
+ *
+ *	Version 1.0, 23 Apr 2013
+ *		created list, sublists and funtionality.
  *		   
 */
 
@@ -23,7 +23,7 @@ void pr8_list_init(struct pr8_target_list * const list){
   list->name = NULL;
 }
 
-struct pr8_target *list_add(struct pr8_target_list * const list,const char *name,const char *line, int *lnumber){
+struct pr8_target *list_add(struct pr8_target_list * const list,const char *name,const char *line, int lnumber){
   struct pr8_target* target= malloc(sizeof(struct target));
   if (target == NULL)
   {
@@ -59,6 +59,7 @@ struct pr8_source *list_add_source(struct pr8_target *node, char *name){
   if (verbose) { printf("%s: malloc() allocated %p\n", __FUNCTION__, source); }
   //Add information to source
   source->string = name;
+  source->father = node;
   //put it to the top of the source list of target
   source->next = target->s_head;
   node->s_head = source;
@@ -77,6 +78,7 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
   if (verbose) { printf("%s: malloc() allocated %p\n", __FUNCTION__, recipe); }
   //Add information to recipe
   recipe->string = name;
+  recipe->father = node;
   //put it to the top of the recipe list of target
   recipe->next = target->r_head;
   node->r_head = recipe;
@@ -100,13 +102,13 @@ int pr8_list_remove(struct pr8_target_list *list, struct pr8_target *name){
 	r_head = r_head->next;
 	free(r_temp);
   }
+  //Go around this node in the list.
   if(name->next!= NULL)
   name->next->prev = name->prev;
   if(name->prev!= NULL)
   name->prev->next = name->next->prev;
   
   free(name);
-  //then move the previous one to link to this one's next one.
   list->length--;
   return list->length;
 }
@@ -146,17 +148,17 @@ void pr8_list_print(struct pr8_target_list *list){
 	}
 }
 
-void pr8_list_print(struct pr8_target *node){
+void pr8_list_print_source(struct pr8_target *node){
 	struct pr8_source *s_temp = node->s_head;
 	while(s_temp != NULL){
-			printf("%s\n", s_temp->string);
+			printf("\t%s\n", s_temp->string);
 			s_temp = s_temp->next;
 		}
 }
-void pr8_list_print(struct pr8_target *node){
+void pr8_list_print_recipe(struct pr8_target *node){
 	struct pr8_recipe *r_temp = node->r_head;
 	while(r_temp != NULL){
-			printf("%s\n", r_temp->string);
+			printf("\t%s\n", r_temp->string);
 			r_temp = r_temp->next;
 		}
 }
