@@ -12,7 +12,7 @@ INC = macro.h names.h cmpsc311.h lister.h
 OPT = -DMTIME=2
 
 pr8 : ${SRC} ${LIB} ${INC}
-	gcc -std=c99 -Wall -Wextra $(OPT) -o hake ${SRC} ${LIB} ${INC}
+	gcc -std=c99 -Wall -Wextra ${OPT} -o hake ${SRC} ${LIB} ${INC}
 
 clean:
 	rm pr8
