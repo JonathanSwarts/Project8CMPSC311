@@ -306,7 +306,7 @@ static void read_lines(char *filename, FILE *fp)
       if (verbose > 0) printf("  diagnosis: recipe line %d\n", recipe_line_number);
       if (have_target)
       {
-        list_add_recipe(cur_target, buffer + 1);
+        list_add_recipe(cur_target, strdup(buffer + 1));
       }
       else
       {
@@ -453,6 +453,10 @@ int pr8_work(char *goal)
     FILE *f = fopen(goal, "a+");
     if (no_op) pr8_list_print_recipe(target);
     fclose(f);
+  }
+  else
+  {
+    printf("%s: target '%s' up-to-date\n", prog, goal);
   }
 
   return 1;

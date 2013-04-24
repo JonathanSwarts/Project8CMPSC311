@@ -19,7 +19,7 @@
 extern int verbose;
 
 void pr8_list_init(struct pr8_target_list * const list){
-  // list->count = 0;
+  list->length = 0;
   list->head = NULL;
   list->tail = NULL;
   list->name = NULL;
@@ -45,7 +45,7 @@ struct pr8_target *list_add(struct pr8_target_list * const list,char * const nam
   target->prev = NULL;
   if (target->next != NULL) target->next->prev = target;
   if(list->tail == NULL)
-	list->tail = target;
+    list->tail = target;
 	
 	list->length++;
 	return target; //returns the target node so you can add sources and recipes.
@@ -120,7 +120,7 @@ struct pr8_target *list_search(struct pr8_target_list *list, char *name){
 	if(list->head == NULL) return NULL;
 	
 	struct pr8_target *t = list->head;
-	while((t!= NULL) && !(strcmp(t->name, name))){
+	while((t!= NULL) && (strcmp(t->name, name) != 0)){
 		t = t->next;
 	}
 	return t;
