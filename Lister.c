@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "Lister.h"
+#include "lister.h"
 
 extern int verbose;
 
