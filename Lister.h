@@ -56,6 +56,10 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name);
 int pr8_list_remove(struct pr8_target_list *list, struct pr8_target *name);
 //Searchs list, specified by name
 struct pr8_target_list *list_search(struct pr8_target_list *list, char *name);
-//Prints list
+//Prints list -- debug
 void pr8_list_print(struct pr8_target_list *list);
+//Prints Source List
+void pr8_list_print(struct pr8_target *node);
+//Prints recipe List
+void pr8_list_print(struct pr8_target *node);
 #endif

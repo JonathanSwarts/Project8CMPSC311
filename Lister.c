@@ -145,3 +145,19 @@ void pr8_list_print(struct pr8_target_list *list){
 		temp = temp->next;
 	}
 }
+
+void pr8_list_print(struct pr8_target *node){
+	struct pr8_source *s_temp = node->s_head;
+	while(s_temp != NULL){
+			printf("%s\n", s_temp->string);
+			s_temp = s_temp->next;
+		}
+}
+void pr8_list_print(struct pr8_target *node){
+	struct pr8_recipe *r_temp = node->r_head;
+	while(r_temp != NULL){
+			printf("%s\n", r_temp->string);
+			r_temp = r_temp->next;
+		}
+}
+
