@@ -116,7 +116,6 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
 }
 
 int pr8_list_remove(struct pr8_target_list *list, struct pr8_target *name){
-  // struct pr8_target *temp = name;
   struct pr8_source *s_temp;
   struct pr8_recipe *r_temp;
   //go through the sources and recipes and free() them!
@@ -183,6 +182,7 @@ void pr8_list_print_source(struct pr8_target *node){
 			s_temp = s_temp->next;
 		}
 }
+
 void pr8_list_print_recipe(struct pr8_target *node){
 	struct pr8_recipe *r_temp = node->r_head;
 	while(r_temp != NULL){
@@ -191,3 +191,30 @@ void pr8_list_print_recipe(struct pr8_target *node){
 		}
 }
 
+int pr8_list_clear(struct pr8_target_list *list){
+  struct pr8_target *t_temp;
+  while(list->head != NULL){
+	  //grab node and delete what's inside
+	  struct pr8_source *s_temp;
+	  struct pr8_recipe *r_temp;
+	  //go through the sources and recipes and free() them!
+	  while(list->head->s_head != NULL){
+		s_temp = list->head->s_head;
+		list->head->s_head = list->head->s_head->next;
+		free(s_temp);
+	  }
+	  while(list->head->r_head != NULL){
+		r_temp = list->head->r_head;
+		list->head->r_head = list->head->r_head->next;
+		free(r_temp);
+	  }
+	t_temp = list->head;  
+	list->head = list->head->next;
+	free(t_temp);
+  }
+  if(list->head != NULL){
+		//ERROR somewhere
+		return 0;
+  }
+  return 1;
+}

@@ -63,4 +63,6 @@ void pr8_list_print(struct pr8_target_list *list);
 void pr8_list_print_source(struct pr8_target *node);
 //Prints Recipe List
 void pr8_list_print_recipe(struct pr8_target *node);
+//Removes the whole list
+int pr8_list_clear(struct pr8_target_list *list);
 #endif
