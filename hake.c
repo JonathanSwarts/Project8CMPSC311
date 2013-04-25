@@ -260,7 +260,7 @@ static void read_lines(char *filename, FILE *fp)
   int recipe_line_number = 0;
   
   struct pr8_target *cur_target = NULL;
-  struct pr8_target *pt;
+  struct pr8_target *pt = NULL;
   int have_target = 0;			// recipes must follow targets
   
   while (fgets(original, MAXLINE, fp) != NULL) {
@@ -296,7 +296,11 @@ static void read_lines(char *filename, FILE *fp)
     }
     
     if (buf[0] == '\0')				// nothing left?
-    { continue; }
+    {
+      have_target = 0;
+      cur_target = NULL;
+      continue;
+    }
     
     char *p_colon = strchr(buf, ':');		// : indicates a target-prerequisite line
     char *p_equal = strchr(buf, '=');		// = indicates a macro definition
