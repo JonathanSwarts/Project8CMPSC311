@@ -5,9 +5,9 @@
  *	Author: Jonathan Swarts
  *	Email:	jbs5144@psu.edu
  *
- *	Version 1.0, 23 Apr 2013
+ *	Version 1.1, 24 Apr 2013
  *		created list, sublists and funtionality.
- *		   
+ *		+	turned stacks into queues for proper output.   
 */
 
 #include <stdio.h>

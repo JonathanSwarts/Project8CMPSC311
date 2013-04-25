@@ -1,5 +1,5 @@
 /*	CMPSC 311 Project 8 Linked List Toolkit
- *	lister.c
+ *	lister.h
  *		- A linked-list kit for targets, sources, and recipes.
  *	
  *	Author: Jonathan Swarts
@@ -61,6 +61,6 @@ struct pr8_target *list_search(struct pr8_target_list *list, char *name);
 void pr8_list_print(struct pr8_target_list *list);
 //Prints Source List
 void pr8_list_print_source(struct pr8_target *node);
-//Prints recipe List
+//Prints Recipe List
 void pr8_list_print_recipe(struct pr8_target *node);
 #endif
