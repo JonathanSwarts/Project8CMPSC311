@@ -62,6 +62,19 @@ struct pr8_source *list_add_source(struct pr8_target *node, char *name){
   //Add information to source
   source->string = name;
   source->father = node;
+  //Check if it's first
+  if(node->s_head != NULL){
+	struct pr8_source* temp = node->s_head;
+	while(temp->next != NULL){
+		temp = temp->next;
+	}
+	//At last one
+	//Add
+	source->next = NULL;
+	temp->next = source;
+	source->prev = temp;
+	return source;
+  }
   //put it to the top of the source list of target
   source->next = node->s_head;
   node->s_head = source;
@@ -81,6 +94,19 @@ struct pr8_recipe *list_add_recipe(struct pr8_target *node, char *name){
   //Add information to recipe
   recipe->string = name;
   recipe->father = node;
+  //Check if it's first
+  if(node->r_head != NULL){
+	struct pr8_recipe* temp = node->r_head;
+	while(temp->next != NULL){
+		temp = temp->next;
+	}
+	//At last one
+	//Add
+	recipe->next = NULL;
+	temp->next = recipe;
+	recipe->prev = temp;
+	return recipe;
+  }
   //put it to the top of the recipe list of target
   recipe->next = node->r_head;
   node->r_head = recipe;
