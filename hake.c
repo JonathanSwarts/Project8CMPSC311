@@ -260,7 +260,8 @@ static void read_lines(char *filename, FILE *fp)
   int recipe_line_number = 0;
   
   struct pr8_target *cur_target = NULL;
-  bool have_target = false;			// recipes must follow targets
+  struct pr8_target *pt;
+  int have_target = 0;			// recipes must follow targets
   
   while (fgets(original, MAXLINE, fp) != NULL) {
     // it is possible that the input line was too long, so terminate the string cleanly
@@ -304,13 +305,19 @@ static void read_lines(char *filename, FILE *fp)
     {
       recipe_line_number++;
       if (verbose > 0) printf("  diagnosis: recipe line %d\n", recipe_line_number);
-      if (have_target)
+      if (have_target != 0)
       {
         list_add_recipe(cur_target, strdup(buffer + 1));
+        pt = cur_target;
+        for (int i=2; i<=have_target; i++) {
+          pt = pt->prev;
+          pt->r_head = cur_target->r_head;
+        }
       }
       else
       {
-        fprintf(stderr, "%s: %s: line %d: recipe but no target\n", prog, filename, line_number);
+        fprintf(stderr, "%s: %s: line %d: recipe but no target\n", prog, \
+                filename, line_number);
         continue;
       }
       // (save this for a later project)
@@ -319,22 +326,35 @@ static void read_lines(char *filename, FILE *fp)
     {
       recipe_line_number = 0;
       if (verbose > 0) printf("  diagnosis: target-prerequisite\n");
-      have_target = true;
+      have_target++;
       
       char *tar_prereq = strdup(buffer);
+      char *p_colon_new = strchr(tar_prereq, ':');
       
       cur_target = list_add(&target_list, strtok(tar_prereq, " \t\n\v\f\r:"), \
                             filename, line_number);
       if (default_goal == NULL) default_goal = cur_target->name;
+      
       while ((tar_prereq = strtok(NULL, " \t\n\v\f\r:")) != NULL) {
-        list_add_source(cur_target, tar_prereq);
+        if (tar_prereq < p_colon_new)  // another target
+        {
+          list_add(&target_list, tar_prereq, filename, line_number);
+          have_target++;
+        }
+        else  // prerequisites
+        { list_add_source(cur_target, tar_prereq); }
       }
       
+      pt = cur_target;
+      for (int i=2; i<=have_target; i++) {
+        pt = pt->prev;
+        pt->s_head = cur_target->s_head;
+      }
     }
     else if (p_equal != NULL)
     {
       if (verbose > 0) printf("  diagnosis: macro definition\n");
-      have_target = false;
+      have_target = 0;
       cur_target = NULL;
       // name = body
       // *p_equal is '='
@@ -363,7 +383,7 @@ static void read_lines(char *filename, FILE *fp)
     else if (strncmp("include", buf, 7) == 0)
     {
       if (verbose > 0) printf("  diagnosis: include\n");
-      have_target = false;
+      have_target = 0;
       cur_target = NULL;
       char *name_start = buf + 7;				// skip past "include"
       while (*name_start == ' ' || *name_start == '\t')	// skip past spaces and tabs
@@ -392,7 +412,7 @@ static void read_lines(char *filename, FILE *fp)
     else
     {
       if (verbose > 0) printf("  diagnosis: something else\n");
-      have_target = false;
+      have_target = 0;
       cur_target = NULL;
       fprintf(stderr, "%s: %s: line %d: not recognized: %s", prog, filename, line_number, original);
     }
